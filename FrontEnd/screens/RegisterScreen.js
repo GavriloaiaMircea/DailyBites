@@ -12,44 +12,40 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
+import { validateRegister } from "../utils/Validation";
+import { useAuth } from "../hooks/useAuth";
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const { register, loading, error } = useAuth();
 
-  const handleRegister = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match!");
+  const handleRegister = () => {
+    const errors = validateRegister({ name, email, password, confirmPassword });
+
+    if (Object.keys(errors).length > 0) {
+      const firstError = Object.values(errors)[0];
+      Alert.alert("Validation Error", firstError);
       return;
     }
 
-    try {
-      const response = await fetch(
-        "http://192.168.1.128:3000/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name, email, password }),
+    register({ name, email, password })
+      .then((result) => {
+        if (result.success) {
+          Alert.alert("Success", "Account created successfully!", [
+            { text: "OK", onPress: () => navigation.navigate("Home") },
+          ]);
+        } else {
+          Alert.alert("Error", result.error);
         }
-      );
-      console.log(response.status);
-      if (response.ok) {
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK", onPress: () => navigation.navigate("Home") },
-        ]);
-      } else {
-        const data = await response.json();
-        Alert.alert("Error", data.message || "Failed to register.");
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Something went wrong!");
-    }
+      })
+      .catch(() => {
+        Alert.alert("Error", "Something went wrong!");
+      });
   };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
