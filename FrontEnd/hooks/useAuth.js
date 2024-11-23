@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { API_BASE_URL } from "@env";
 
-const API_BASE_URL = "http://192.168.1.128:3000/api/auth";
+const API_AUTH_URL = `${API_BASE_URL}/api/auth`;
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
 
-    return fetch(`${API_BASE_URL}/register`, {
+    return fetch(`${API_AUTH_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
