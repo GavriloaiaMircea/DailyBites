@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
@@ -18,17 +19,37 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = () => {
-    // Handle registration logic here
-    console.log(
-      "Registration attempted with:",
-      name,
-      email,
-      password,
-      confirmPassword
-    );
-  };
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match!");
+      return;
+    }
 
+    try {
+      const response = await fetch(
+        "http://192.168.1.128:3000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        }
+      );
+      console.log(response.status);
+      if (response.ok) {
+        Alert.alert("Success", "Account created successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Home") },
+        ]);
+      } else {
+        const data = await response.json();
+        Alert.alert("Error", data.message || "Failed to register.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Something went wrong!");
+    }
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -183,11 +204,5 @@ const styles = StyleSheet.create({
     color: "#4CAF50",
     textAlign: "center",
     marginTop: 20,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-    backgroundColor: "#C8E6C9",
   },
 });

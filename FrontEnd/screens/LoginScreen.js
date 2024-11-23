@@ -145,10 +145,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-    backgroundColor: "#C8E6C9",
-  },
 });
