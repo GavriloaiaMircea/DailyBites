@@ -14,13 +14,15 @@ import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 import { validateRegister } from "../utils/Validation";
 import { useAuth } from "../hooks/useAuth";
+import useUserStore from "../stores/useUserStore";
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { register, loading, error } = useAuth();
+  const { register } = useAuth();
+  const { setCurrentUser } = useUserStore();
 
   const handleRegister = () => {
     const errors = validateRegister({ name, email, password, confirmPassword });
@@ -34,6 +36,7 @@ export default function RegisterScreen({ navigation }) {
     register({ name, email, password })
       .then((result) => {
         if (result.success) {
+          setCurrentUser(result.data.user);
           Alert.alert("Success", "Account created successfully!", [
             { text: "OK", onPress: () => navigation.navigate("Home") },
           ]);

@@ -14,11 +14,13 @@ import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 import { validateLogin } from "../utils/Validation";
 import { useAuth } from "../hooks/useAuth";
+import useUserStore from "../stores/useUserStore";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, error, loading } = useAuth();
+  const { login } = useAuth();
+  const { setCurrentUser } = useUserStore();
 
   const handleLogin = () => {
     const errors = validateLogin({ email, password });
@@ -32,6 +34,7 @@ export default function LoginScreen({ navigation }) {
     login({ email, password })
       .then((result) => {
         if (result.success) {
+          setCurrentUser(result.data.user);
           navigation.navigate("Home");
         } else {
           Alert.alert("Error", result.error);
