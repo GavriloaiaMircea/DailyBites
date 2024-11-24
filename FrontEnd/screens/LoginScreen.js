@@ -8,17 +8,38 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
+import { validateLogin } from "../utils/Validation";
+import { useAuth } from "../hooks/useAuth";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, error, loading } = useAuth();
 
   const handleLogin = () => {
-    // Handle login logic here
-    console.log("Login attempted with:", email, password);
+    const errors = validateLogin({ email, password });
+
+    if (Object.keys(errors).length > 0) {
+      const firstError = Object.values(errors)[0];
+      Alert.alert("Validation Error", firstError);
+      return;
+    }
+
+    login({ email, password })
+      .then((result) => {
+        if (result.success) {
+          navigation.navigate("Home");
+        } else {
+          Alert.alert("Error", result.error);
+        }
+      })
+      .catch(() => {
+        Alert.alert("Error", "Something went wrong!");
+      });
   };
 
   return (
