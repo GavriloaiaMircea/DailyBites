@@ -8,14 +8,17 @@ import {
   SafeAreaView,
   Platform,
   StatusBar,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import useUserStore from "../stores/useUserStore";
 
+const { width } = Dimensions.get("window");
+
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const { currentUser } = useUserStore();
-  const userName = currentUser.name;
+  const userName = currentUser.name || "Guest";
 
   const handleSearch = () => {
     console.log("Căutare pentru:", searchQuery);
@@ -28,7 +31,7 @@ export default function HomeScreen() {
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Caută mâncăruri sau rețete..."
+            placeholder="Search for food or something good..."
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -66,8 +69,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 25,
-    width: "100%",
-    maxWidth: 400,
+    width: width > 400 ? 400 : "90%",
     paddingLeft: 15,
     elevation: 3,
     shadowColor: "#000",

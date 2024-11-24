@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Routes
 app.use("/api/auth", authRoutes);
+app.use("/api", searchRoutes);
 
 app.get("/", (req, res) => {
   res.send("Serverul este funcțional!");
