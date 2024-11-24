@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { API_BASE_URL } from "@env";
 
-const API_AUTH_URL = `${API_BASE_URL}/api/auth`;
+const API_AUTH_URL = `${API_BASE_URL}/auth`;
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
