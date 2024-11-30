@@ -22,19 +22,16 @@ export default function App() {
       try {
         const token = await AsyncStorage.getItem("token");
         if (token) {
-          console.log("Token found:", token);
-
           const userResult = await fetchCurrentUser();
           if (userResult.success) {
-            setCurrentUser(userResult.user); // Setăm utilizatorul în Zustand
+            setCurrentUser(userResult.user);
             setIsLoggedIn(true);
           } else {
             console.error("Error fetching user:", userResult.error);
-            await AsyncStorage.removeItem("token"); // Ștergem token-ul invalid
+            await AsyncStorage.removeItem("token");
             setIsLoggedIn(false);
           }
         } else {
-          console.log("No token found");
           setIsLoggedIn(false);
         }
       } catch (error) {

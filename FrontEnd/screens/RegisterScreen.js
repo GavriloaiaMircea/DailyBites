@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -10,8 +9,8 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import PropTypes from "prop-types";
+import Header from "../components/Header";
+import InputField from "../components/InputField";
 import { validateRegister } from "../utils/Validation";
 import { useAuth } from "../hooks/useAuth";
 import useUserStore from "../stores/useUserStore";
@@ -28,8 +27,7 @@ export default function RegisterScreen({ navigation }) {
     const errors = validateRegister({ name, email, password, confirmPassword });
 
     if (Object.keys(errors).length > 0) {
-      const firstError = Object.values(errors)[0];
-      Alert.alert("Validation Error", firstError);
+      Alert.alert("Validation Error", Object.values(errors)[0]);
       return;
     }
 
@@ -39,9 +37,7 @@ export default function RegisterScreen({ navigation }) {
           fetchCurrentUser().then((userResult) => {
             if (userResult.success) {
               setCurrentUser(userResult.user);
-              Alert.alert("Success", "Account created successfully!", [
-                { text: "OK", onPress: () => navigation.navigate("Home") },
-              ]);
+              navigation.navigate("Home");
             } else {
               Alert.alert("Error", userResult.error);
             }
@@ -61,76 +57,36 @@ export default function RegisterScreen({ navigation }) {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.header}>
-          <Ionicons name="leaf" size={40} color="#4CAF50" />
-          <Text style={styles.title}>DailyBites</Text>
-        </View>
+        <Header title="DailyBites" />
         <Text style={styles.subtitle}>Create your account</Text>
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="person-outline"
-              size={24}
-              color="#4CAF50"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              placeholderTextColor="#888"
-              value={name}
-              onChangeText={setName}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={24}
-              color="#4CAF50"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#888"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={24}
-              color="#4CAF50"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#888"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={24}
-              color="#4CAF50"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              placeholderTextColor="#888"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-            />
-          </View>
+          <InputField
+            iconName="person-outline"
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <InputField
+            iconName="mail-outline"
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+          />
+          <InputField
+            iconName="lock-closed-outline"
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <InputField
+            iconName="lock-closed-outline"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
@@ -145,10 +101,6 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
-RegisterScreen.propTypes = {
-  navigation: PropTypes.object.isRequired,
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -159,16 +111,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#2E7D32",
-    marginTop: 10,
-  },
   subtitle: {
     fontSize: 16,
     color: "#555",
@@ -177,22 +119,6 @@ const styles = StyleSheet.create({
   },
   form: {
     width: "100%",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: "#333",
   },
   button: {
     backgroundColor: "#4CAF50",

@@ -11,7 +11,7 @@ import useUserStore from "../stores/useUserStore";
 import { useSearch } from "../hooks/useSearch";
 import SearchBar from "../components/SearchBar";
 import ResultsList from "../components/ResultsList";
-import Header from "../components/Header";
+import HeaderHomeScreen from "../components/HeaderHomeScreen";
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header userName={userName} onLogout={handleLogout} />
+      <HeaderHomeScreen userName={userName} onLogout={handleLogout} />
       <View style={styles.content}>
         <SearchBar
           searchQuery={searchQuery}
