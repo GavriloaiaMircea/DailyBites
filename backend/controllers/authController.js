@@ -1,6 +1,17 @@
 import bcrypt from "bcrypt";
 import pool from "../db/db.js";
+import jwt from "jsonwebtoken";
 
+// Funcție pentru generarea token-ului JWT
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" } // Token valabil 1 zi
+  );
+};
+
+// Înregistrarea utilizatorului
 export const registerUser = (req, res) => {
   const { name, email, password } = req.body;
 
@@ -25,9 +36,14 @@ export const registerUser = (req, res) => {
           );
         })
         .then((newUser) => {
+          const user = newUser.rows[0];
+
+          // Generează token pentru utilizatorul nou
+          const token = generateToken(user);
+
           res.status(201).json({
             message: "User created successfully!",
-            user: newUser.rows[0],
+            token,
           });
         });
     })
@@ -37,6 +53,7 @@ export const registerUser = (req, res) => {
     });
 };
 
+// Login utilizator
 export const loginUser = (req, res) => {
   const { email, password } = req.body;
 
@@ -51,7 +68,18 @@ export const loginUser = (req, res) => {
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      return res.status(200).json({ message: "Login successful", user: user });
+      // Generează token pentru utilizator
+      const token = generateToken(user);
+
+      return res.status(200).json({
+        message: "Login successful",
+        token,
+      });
     });
   });
+};
+
+// Obținerea utilizatorului curent
+export const getCurrentUser = (req, res) => {
+  res.json({ user: req.user });
 };
