@@ -1,9 +1,13 @@
 import { create } from "zustand";
 
 const useUserStore = create((set) => ({
-  currentUser: null,
-  setCurrentUser: (user) => set({ currentUser: user }),
-  clearUser: () => set({ currentUser: null }),
+  currentUser: {},
+  setCurrentUser: (user) => {
+    set({ currentUser: user });
+  },
+  clearUser: () => {
+    set({ currentUser: {} });
+  },
 }));
 
 export default useUserStore;

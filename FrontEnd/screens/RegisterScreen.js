@@ -21,7 +21,7 @@ export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { register } = useAuth();
+  const { register, fetchCurrentUser } = useAuth();
   const { setCurrentUser } = useUserStore();
 
   const handleRegister = () => {
@@ -36,10 +36,16 @@ export default function RegisterScreen({ navigation }) {
     register({ name, email, password })
       .then((result) => {
         if (result.success) {
-          setCurrentUser(result.data.user);
-          Alert.alert("Success", "Account created successfully!", [
-            { text: "OK", onPress: () => navigation.navigate("Home") },
-          ]);
+          fetchCurrentUser().then((userResult) => {
+            if (userResult.success) {
+              setCurrentUser(userResult.user);
+              Alert.alert("Success", "Account created successfully!", [
+                { text: "OK", onPress: () => navigation.navigate("Home") },
+              ]);
+            } else {
+              Alert.alert("Error", userResult.error);
+            }
+          });
         } else {
           Alert.alert("Error", result.error);
         }

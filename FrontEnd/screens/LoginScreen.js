@@ -19,7 +19,7 @@ import useUserStore from "../stores/useUserStore";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const { login, fetchCurrentUser } = useAuth();
   const { setCurrentUser } = useUserStore();
 
   const handleLogin = () => {
@@ -34,14 +34,20 @@ export default function LoginScreen({ navigation }) {
     login({ email, password })
       .then((result) => {
         if (result.success) {
-          setCurrentUser(result.data.user);
-          navigation.navigate("Home");
+          fetchCurrentUser().then((userResult) => {
+            if (userResult.success) {
+              setCurrentUser(userResult.user);
+              navigation.navigate("Home");
+            } else {
+              Alert.alert("Error", userResult.error);
+            }
+          });
         } else {
           Alert.alert("Error", result.error);
         }
       })
-      .catch(() => {
-        Alert.alert("Error", "Something went wrong!");
+      .catch((err) => {
+        Alert.alert("Error", "Something went wrong!" + err);
       });
   };
 

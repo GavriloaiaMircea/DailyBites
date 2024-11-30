@@ -1,5 +1,7 @@
 import React from "react";
-import { FlatList, View, Text, StyleSheet } from "react-native";
+import { FlatList, View, Text, StyleSheet, Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function ResultsList({ results }) {
   const renderItem = ({ item }) => (
@@ -14,14 +16,17 @@ export default function ResultsList({ results }) {
       keyExtractor={(item) => item.id.toString()}
       renderItem={renderItem}
       style={styles.resultList}
+      contentContainerStyle={styles.resultListContent}
     />
   );
 }
 
 const styles = StyleSheet.create({
   resultList: {
-    marginTop: 20,
     width: "100%",
+  },
+  resultListContent: {
+    paddingHorizontal: 20,
   },
   resultItem: {
     flexDirection: "row",
@@ -35,6 +40,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    width: width > 400 ? 400 : "100%",
   },
   resultText: {
     fontSize: 16,

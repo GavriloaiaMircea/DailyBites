@@ -15,10 +15,11 @@ export default function SearchBar({ searchQuery, setSearchQuery, onSearch }) {
     <View style={styles.searchContainer}>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search for food or something good..."
+        placeholder="Search for food..."
         placeholderTextColor="#888"
         value={searchQuery}
         onChangeText={setSearchQuery}
+        onSubmitEditing={onSearch}
       />
       <TouchableOpacity style={styles.searchButton} onPress={onSearch}>
         <Ionicons name="search" size={24} color="white" />
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginBottom: 20,
   },
   searchInput: {
     flex: 1,
