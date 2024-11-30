@@ -6,15 +6,12 @@ import {
   SafeAreaView,
   Platform,
   StatusBar,
-  TouchableOpacity,
-  Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import useUserStore from "../stores/useUserStore";
 import { useSearch } from "../hooks/useSearch";
 import SearchBar from "../components/SearchBar";
 import ResultsList from "../components/ResultsList";
-import { Ionicons } from "@expo/vector-icons";
+import Header from "../components/Header";
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,35 +24,13 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to log out?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: () => {
-          AsyncStorage.removeItem("token")
-            .then(() => {
-              clearUser();
-              navigation.replace("Login");
-            })
-            .catch((error) => {
-              console.error("Error during logout:", error);
-            });
-        },
-      },
-    ]);
+    clearUser();
+    navigation.replace("Login");
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome, {userName}!</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      <Header userName={userName} onLogout={handleLogout} />
       <View style={styles.content}>
         <SearchBar
           searchQuery={searchQuery}
@@ -76,28 +51,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8F5E9",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-    backgroundColor: "#4CAF50",
-  },
   content: {
     flex: 1,
     alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 20,
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  logoutButton: {
-    padding: 10,
   },
   errorText: {
     color: "red",

@@ -24,6 +24,23 @@ const removeToken = () => {
   });
 };
 
+// Funcție generică pentru cereri API
+const makeRequest = ({ url, method = "GET", body, headers = {} }) => {
+  return fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : null,
+  })
+    .then((response) => response.json().then((data) => ({ response, data })))
+    .catch((error) => {
+      console.error("Request failed:", error);
+      throw new Error("Network error");
+    });
+};
+
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,14 +49,11 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
 
-    return fetch(`${API_AUTH_URL}/register`, {
+    return makeRequest({
+      url: `${API_AUTH_URL}/register`,
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, password }),
+      body: { name, email, password },
     })
-      .then((response) => response.json().then((data) => ({ response, data })))
       .then(({ response, data }) => {
         setLoading(false);
         if (response.ok) {
@@ -49,10 +63,7 @@ export const useAuth = () => {
           }));
         } else {
           setError(data.message || "Failed to register.");
-          return {
-            success: false,
-            error: data.message || "Failed to register.",
-          };
+          return { success: false, error: data.message };
         }
       })
       .catch(() => {
@@ -66,14 +77,11 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
 
-    return fetch(`${API_AUTH_URL}/login`, {
+    return makeRequest({
+      url: `${API_AUTH_URL}/login`,
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
+      body: { email, password },
     })
-      .then((response) => response.json().then((data) => ({ response, data })))
       .then(({ response, data }) => {
         setLoading(false);
         if (response.ok) {
@@ -83,10 +91,7 @@ export const useAuth = () => {
           }));
         } else {
           setError(data.message || "Failed to login.");
-          return {
-            success: false,
-            error: data.message || "Failed to login.",
-          };
+          return { success: false, error: data.message };
         }
       })
       .catch(() => {
@@ -102,29 +107,19 @@ export const useAuth = () => {
         return { success: false, error: "No token available" };
       }
 
-      return fetch(`${API_AUTH_URL}/current-user`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) =>
-          response.json().then((data) => ({ response, data }))
-        )
-        .then(({ response, data }) => {
-          if (response.ok) {
-            return { success: true, user: data.user };
-          } else {
-            return {
-              success: false,
-              error: data.message || "Failed to fetch user",
-            };
-          }
-        })
-        .catch(() => ({
-          success: false,
-          error: "Something went wrong!",
-        }));
+      return makeRequest({
+        url: `${API_AUTH_URL}/current-user`,
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(({ response, data }) => {
+        if (response.ok) {
+          return { success: true, user: data.user };
+        } else {
+          return {
+            success: false,
+            error: data.message || "Failed to fetch user",
+          };
+        }
+      });
     });
   };
 
@@ -134,15 +129,14 @@ export const useAuth = () => {
 
   const protectedRequest = (endpoint, options = {}) => {
     return getToken().then((token) => {
-      const headers = {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-        Authorization: `Bearer ${token}`,
-      };
+      if (!token) {
+        throw new Error("No token available");
+      }
 
-      return fetch(`${API_AUTH_URL}${endpoint}`, {
+      return makeRequest({
+        url: `${API_AUTH_URL}${endpoint}`,
+        headers: { Authorization: `Bearer ${token}` },
         ...options,
-        headers,
       });
     });
   };
@@ -153,7 +147,6 @@ export const useAuth = () => {
     fetchCurrentUser,
     logout,
     protectedRequest,
-    getToken,
     loading,
     error,
   };
