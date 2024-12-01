@@ -39,7 +39,10 @@ export default function HomeScreen({ navigation }) {
         />
         {error && <Text style={styles.errorText}>{error}</Text>}
         {loading && <Text style={styles.loadingText}>Loading...</Text>}
-        <ResultsList results={results} />
+        <ResultsList
+          results={results}
+          onSelect={(id) => navigation.navigate("FoodDetails", { id })}
+        />
       </View>
     </SafeAreaView>
   );

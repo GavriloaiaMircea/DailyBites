@@ -1,13 +1,22 @@
 import React from "react";
-import { FlatList, View, Text, StyleSheet, Dimensions } from "react-native";
+import {
+  FlatList,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 
 const { width } = Dimensions.get("window");
 
-export default function ResultsList({ results }) {
+export default function ResultsList({ results, onSelect }) {
   const renderItem = ({ item }) => (
-    <View style={styles.resultItem}>
+    <TouchableOpacity
+      style={styles.resultItem}
+      onPress={() => onSelect(item.id)}
+    >
       <Text style={styles.resultText}>{item.name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

@@ -45,32 +45,73 @@ export const getFoodDetails = (req, res) => {
   fetch(apiUrl)
     .then((response) => response.json())
     .then((data) => {
-      if (!data.labelNutrients) {
+      if (!data) {
         return res
           .status(404)
-          .json({ message: "No nutritional details found" });
+          .json({ message: "No data found for this product" });
       }
+
+      const getNutrientValue = (nutrients, nutrientName) => {
+        const nutrient = nutrients.find((item) => {
+          return (
+            item.nutrient &&
+            item.nutrient.name &&
+            item.nutrient.name.toLowerCase() === nutrientName.toLowerCase()
+          );
+        });
+        return nutrient ? nutrient.amount : 0;
+      };
+
+      // Extract values from `labelNutrients` or `foodNutrients`
+      const labelNutrients = data.labelNutrients || {};
+      const foodNutrients = data.foodNutrients || [];
 
       const nutritionalInfo = {
         name: data.description,
-        servingSize: `${data.servingSize} ${data.servingSizeUnit}`,
-        calories: data.labelNutrients.calories?.value || 0,
+        servingSize: `${data.servingSize || "N/A"} ${
+          data.servingSizeUnit || ""
+        }`.trim(),
+        calories:
+          labelNutrients.calories?.value ||
+          getNutrientValue(foodNutrients, "Energy"),
         macronutrients: {
-          carbohydrates: data.labelNutrients.carbohydrates?.value || 0,
-          protein: data.labelNutrients.protein?.value || 0,
-          fat: data.labelNutrients.fat?.value || 0,
-          fiber: data.labelNutrients.fiber?.value || 0,
-          sugars: data.labelNutrients.sugars?.value || 0,
+          carbohydrates:
+            labelNutrients.carbohydrates?.value ||
+            getNutrientValue(foodNutrients, "Carbohydrate, by difference"),
+          protein:
+            labelNutrients.protein?.value ||
+            getNutrientValue(foodNutrients, "Protein"),
+          fat:
+            labelNutrients.fat?.value ||
+            getNutrientValue(foodNutrients, "Total lipid (fat)"),
+          fiber:
+            labelNutrients.fiber?.value ||
+            getNutrientValue(foodNutrients, "Fiber, total dietary"),
+          sugars:
+            labelNutrients.sugars?.value ||
+            getNutrientValue(foodNutrients, "Total Sugars"),
         },
         micronutrients: {
-          calcium: data.labelNutrients.calcium?.value || 0,
-          iron: data.labelNutrients.iron?.value || 0,
-          potassium: data.labelNutrients.potassium?.value || 0,
+          calcium:
+            labelNutrients.calcium?.value ||
+            getNutrientValue(foodNutrients, "Calcium, Ca"),
+          iron:
+            labelNutrients.iron?.value ||
+            getNutrientValue(foodNutrients, "Iron, Fe"),
+          potassium:
+            labelNutrients.potassium?.value ||
+            getNutrientValue(foodNutrients, "Potassium, K"),
         },
         otherNutrients: {
-          saturatedFat: data.labelNutrients.saturatedFat?.value || 0,
-          cholesterol: data.labelNutrients.cholesterol?.value || 0,
-          sodium: data.labelNutrients.sodium?.value || 0,
+          saturatedFat:
+            labelNutrients.saturatedFat?.value ||
+            getNutrientValue(foodNutrients, "Fatty acids, total saturated"),
+          cholesterol:
+            labelNutrients.cholesterol?.value ||
+            getNutrientValue(foodNutrients, "Cholesterol"),
+          sodium:
+            labelNutrients.sodium?.value ||
+            getNutrientValue(foodNutrients, "Sodium, Na"),
         },
       };
 

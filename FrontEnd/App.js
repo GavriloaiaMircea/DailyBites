@@ -6,6 +6,7 @@ import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import LoadingScreen from "./screens/LoadingScreen";
+import FoodDetailsScreen from "./screens/FoodDetailsScreen";
 import { useAuth } from "./hooks/useAuth";
 import useUserStore from "./stores/useUserStore";
 
@@ -67,6 +68,7 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="FoodDetails" component={FoodDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
