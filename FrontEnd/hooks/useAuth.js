@@ -124,7 +124,25 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    return removeToken();
+    return makeRequest({
+      url: `${API_AUTH_URL}/logout`,
+      method: "GET",
+      credentials: "include",
+    })
+      .then(({ response, data }) => {
+        if (response.ok) {
+          return removeToken().then(() => ({
+            success: true,
+            message: data.message,
+          }));
+        } else {
+          return { success: false, error: data.message || "Failed to logout" };
+        }
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+        return { success: false, error: "Something went wrong during logout" };
+      });
   };
 
   const protectedRequest = (endpoint, options = {}) => {

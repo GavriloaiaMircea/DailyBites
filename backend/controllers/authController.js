@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import pool from "../db/db.js";
 import jwt from "jsonwebtoken";
+import session from "express-session";
 
 // Funcție pentru generarea token-ului JWT
 const generateToken = (user) => {
@@ -38,8 +39,13 @@ export const registerUser = (req, res) => {
         .then((newUser) => {
           const user = newUser.rows[0];
 
-          // Generează token pentru utilizatorul nou
+          // Generează token pentru utilizatorul nou si setează sesiunea
           const token = generateToken(user);
+          req.session.user = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
 
           res.status(201).json({
             message: "User created successfully!",
@@ -68,12 +74,18 @@ export const loginUser = (req, res) => {
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      // Generează token pentru utilizator
+      // Generează token pentru utilizator si setează sesiunea
       const token = generateToken(user);
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      };
 
       return res.status(200).json({
         message: "Login successful",
         token,
+        session: req.session,
       });
     });
   });
@@ -97,4 +109,14 @@ export const getCurrentUser = (req, res) => {
       console.error("Error fetching user:", err);
       res.status(500).json({ message: "Internal server error" });
     });
+};
+
+export const logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Failed to log out" });
+    }
+    res.clearCookie("connect.sid");
+    res.status(200).json({ message: "Logged out successfully" });
+  });
 };

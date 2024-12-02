@@ -5,11 +5,16 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Image,
+  Dimensions,
 } from "react-native";
 import { useFoodDetails } from "../hooks/useFoodDetails";
+import { Ionicons } from "@expo/vector-icons";
+
+const { width } = Dimensions.get("window");
 
 export default function FoodDetailsScreen({ route }) {
-  const { id } = route.params; // ID-ul produsului selectat
+  const { id } = route.params;
   const { details, fetchFoodDetails, loading, error } = useFoodDetails();
 
   useEffect(() => {
@@ -20,7 +25,7 @@ export default function FoodDetailsScreen({ route }) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#4CAF50" />
-        <Text>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -28,6 +33,7 @@ export default function FoodDetailsScreen({ route }) {
   if (error) {
     return (
       <View style={styles.centered}>
+        <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
         <Text style={styles.errorText}>{error}</Text>
       </View>
     );
@@ -36,7 +42,8 @@ export default function FoodDetailsScreen({ route }) {
   if (!details) {
     return (
       <View style={styles.centered}>
-        <Text>No details available.</Text>
+        <Ionicons name="information-circle-outline" size={48} color="#4CAF50" />
+        <Text style={styles.noDataText}>No details available.</Text>
       </View>
     );
   }
@@ -48,34 +55,45 @@ export default function FoodDetailsScreen({ route }) {
     macronutrients,
     micronutrients,
     otherNutrients,
+    imageUrl,
   } = details;
+
+  const renderNutrientSection = (title, nutrients) => (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {Object.entries(nutrients).map(([key, value]) => (
+        <View key={key} style={styles.nutrientRow}>
+          <Text style={styles.nutrientName}>
+            {key.charAt(0).toUpperCase() + key.slice(1)}
+          </Text>
+          <Text style={styles.nutrientValue}>
+            {value} {title === "Macronutrients" ? "g" : "mg"}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>{name}</Text>
-      <Text style={styles.subtitle}>Serving Size: {servingSize}</Text>
-      <Text style={styles.subtitle}>Calories: {calories}</Text>
+      <View style={styles.header}>
+        <Image
+          source={{ uri: imageUrl || "https://via.placeholder.com/150" }}
+          style={styles.image}
+        />
+        <View style={styles.headerInfo}>
+          <Text style={styles.title}>{name}</Text>
+          <Text style={styles.subtitle}>Serving Size: {servingSize}</Text>
+          <View style={styles.calorieBox}>
+            <Ionicons name="flame-outline" size={24} color="#FF6B6B" />
+            <Text style={styles.calorieText}>{calories} calories</Text>
+          </View>
+        </View>
+      </View>
 
-      <Text style={styles.sectionTitle}>Macronutrients</Text>
-      {Object.entries(macronutrients).map(([key, value]) => (
-        <Text key={key} style={styles.text}>
-          {key.charAt(0).toUpperCase() + key.slice(1)}: {value} g
-        </Text>
-      ))}
-
-      <Text style={styles.sectionTitle}>Micronutrients</Text>
-      {Object.entries(micronutrients).map(([key, value]) => (
-        <Text key={key} style={styles.text}>
-          {key.charAt(0).toUpperCase() + key.slice(1)}: {value} mg
-        </Text>
-      ))}
-
-      <Text style={styles.sectionTitle}>Other Nutrients</Text>
-      {Object.entries(otherNutrients).map(([key, value]) => (
-        <Text key={key} style={styles.text}>
-          {key.charAt(0).toUpperCase() + key.slice(1)}: {value} mg
-        </Text>
-      ))}
+      {renderNutrientSection("Macronutrients", macronutrients)}
+      {renderNutrientSection("Micronutrients", micronutrients)}
+      {renderNutrientSection("Other Nutrients", otherNutrients)}
     </ScrollView>
   );
 }
@@ -84,35 +102,100 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+  },
+  header: {
+    flexDirection: "row",
     padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 16,
+  },
+  headerInfo: {
+    flex: 1,
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 8,
+    color: "#333333",
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
+    color: "#666666",
     marginBottom: 8,
-    color: "#555",
+  },
+  calorieBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF3E0",
+    padding: 8,
+    borderRadius: 8,
+  },
+  calorieText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FF6B6B",
+    marginLeft: 8,
+  },
+  section: {
+    backgroundColor: "#FFFFFF",
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginTop: 16,
+    color: "#4CAF50",
+    marginBottom: 12,
+  },
+  nutrientRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
-  text: {
+  nutrientName: {
     fontSize: 16,
-    marginBottom: 4,
+    color: "#333333",
+  },
+  nutrientValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#4CAF50",
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  errorText: {
-    color: "red",
+  loadingText: {
+    marginTop: 16,
     fontSize: 16,
+    color: "#4CAF50",
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#FF6B6B",
+    textAlign: "center",
+  },
+  noDataText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#4CAF50",
+    textAlign: "center",
   },
 });

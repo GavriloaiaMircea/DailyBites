@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import useUserStore from "../stores/useUserStore";
 import { useSearch } from "../hooks/useSearch";
+import { useAuth } from "../hooks/useAuth";
 import SearchBar from "../components/SearchBar";
 import ResultsList from "../components/ResultsList";
 import HeaderHomeScreen from "../components/HeaderHomeScreen";
@@ -18,14 +19,21 @@ export default function HomeScreen({ navigation }) {
   const { currentUser, clearUser } = useUserStore();
   const userName = currentUser?.name || "Guest";
   const { results, search, error, loading } = useSearch();
+  const { logout } = useAuth();
 
   const handleSearch = () => {
     search(searchQuery);
   };
 
   const handleLogout = () => {
-    clearUser();
-    navigation.replace("Login");
+    logout().then(({ success, error }) => {
+      if (success) {
+        clearUser();
+        navigation.replace("Login");
+      } else {
+        console.error("Logout failed:", error);
+      }
+    });
   };
 
   return (

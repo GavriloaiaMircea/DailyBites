@@ -62,7 +62,6 @@ export const getFoodDetails = (req, res) => {
         return nutrient ? nutrient.amount : 0;
       };
 
-      // Extract values from `labelNutrients` or `foodNutrients`
       const labelNutrients = data.labelNutrients || {};
       const foodNutrients = data.foodNutrients || [];
 
